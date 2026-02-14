@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>你的自律类型 · LUMINARY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9ecf0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,20,30,0.2), 0 4px 12px rgba(0,0,0,0.05);
+            max-width: 600px;
+            width: 100%;
+            padding: 32px 24px;
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+        .header p {
+            color: #2c3e50;
+            opacity: 0.8;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+        .type-badge {
+            display: inline-block;
+            background: #2a5298;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 40px;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 8px rgba(42,82,152,0.3);
+        }
+        .type-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            color: #0a1a2f;
+        }
+        .type-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #1e2a3a;
+            margin-bottom: 28px;
+            background: rgba(255,255,255,0.7);
+            padding: 20px;
+            border-radius: 24px;
+            border-left: 5px solid #2a5298;
+        }
+        .advice {
+            background: #f0f4fb;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(42,82,152,0.2);
+        }
+        .advice h3 {
+            font-size: 1.2rem;
+            color: #1e3c72;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .advice p {
+            color: #2c3e50;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .share-hint {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 20px;
+            margin-top: 16px;
+        }
+        .share-hint button {
+            background: none;
+            border: 1px solid #2a5298;
+            color: #2a5298;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .share-hint button:hover {
+            background: #2a5298;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 16px;
+        }
+        .loading {
+            text-align: center;
+            color: #2a5298;
+            font-size: 1.2rem;
+            padding: 40px;
+        }
+        .error {
+            color: #b91c1c;
+            background: #fee2e2;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="resultCard">
+        <div class="loading">✨ 正在解读你的自律密码...</div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 1. 从URL获取参数（使用自定义参数名） ----------
+            function getParam(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            // 获取各个变量的值（参数名与跳转链接中设置的一致）
+            const AN1 = getParam('AN1') ? Number(getParam('AN1')) : null;   // 焦虑
+            const BI1 = getParam('BI1') ? Number(getParam('BI1')) : null;   // 付费意愿
+            const SC1 = getParam('SC1') ? Number(getParam('SC1')) : null;   // 控制感缺失
+            const CM1 = getParam('CM1') ? Number(getParam('CM1')) : null;   // 心理代偿
+            const SE1 = getParam('SE1') ? Number(getParam('SE1')) : null;   // 自我效能
+
+            // 调试信息（按F12可看）
+            console.log('AN1=', AN1, 'BI1=', BI1, 'SC1=', SC1, 'CM1=', CM1, 'SE1=', SE1);
+
+            // ---------- 2. 判断自律类型 ----------
+            function getType() {
+                // 规则1：高焦虑 (AN1 ≥ 4) 且 高付费意愿 (BI1 ≥ 4)
+                if (AN1 !== null && BI1 !== null && AN1 >= 4 && BI1 >= 4) {
+                    return 'ritual';
+                }
+                // 规则2：低控制感 (SC1 ≥ 4) 且 高代偿 (CM1 ≥ 4)
+                if (SC1 !== null && CM1 !== null && SC1 >= 4 && CM1 >= 4) {
+                    return 'debt';
+                }
+                // 规则3：高效能 (SE1 ≥ 4) 且 低付费意愿 (BI1 !== null && BI1 <= 2)
+                if (SE1 !== null && BI1 !== null && SE1 >= 4 && BI1 <= 2) {
+                    return 'inner';
+                }
+                // 默认
+                return 'default';
+            }
+
+            // ---------- 3. 根据类型渲染内容 ----------
+            function render(type) {
+                const container = document.getElementById('resultCard');
+                let title, desc, advice, badgeColor, badgeText;
+
+                switch (type) {
+                    case 'ritual':
+                        badgeText = '仪式驱动型';
+                        title = '🎯 仪式驱动型自律者';
+                        desc = '你需要一个「开始」的仪式——也许是整理书桌，也许是打卡，也许是为学习花点钱。仪式感对你来说不是形式，而是进入状态的开关。你买的不是服务，是那个「我要开始了」的信号。';
+                        advice = '接纳自己的仪式需求，但别让仪式代替真正的行动。设定一个5分钟倒计时，仪式结束立刻开始学习。';
+                        badgeColor = '#8B5CF6';
+                        break;
+                    case 'debt':
+                        badgeText = '压力负债型';
+                        title = '😥 压力负债型自律者';
+                        desc = '你常常因为拖延而自责，付费像是给焦虑「还债」——花钱买个心安，买个「至少我在努力」的证明。但问题是，买了不等于做了，做了不等于做到。';
+                        advice = '把「为焦虑付费」变成「为目标付费」。付费前问自己：这笔钱买的是安慰，还是具体的学习产出？';
+                        badgeColor = '#E11D48';
+                        break;
+                    case 'inner':
+                        badgeText = '内生型';
+                        title = '💪 内生型自律者';
+                        desc = '你对自己的掌控力有信心，即使偶尔拖延，也相信能调整回来。付费自律服务对你来说更像是锦上添花，而不是雪中救急。';
+                        advice = '你是付费自律市场的「理性消费者」。如果选择付费，请关注那些能真正提升效率的功能，而不是情绪安慰。';
+                        badgeColor = '#059669';
+                        break;
+                    default:
+                        badgeText = '综合型';
+                        title = '🧘 综合型自律者';
+                        desc = '你的自律风格多元而平衡，可能同时受到多种因素影响。你既有内在的坚持，也会借助外部环境。';
+                        advice = '保持这种灵活的态度！在不同情境下选择最适合自己的方式，就是最好的自律。';
+                        badgeColor = '#4B5563';
+                        break;
+                }
+
+                const html = `
+                    <div class="header">
+                        <h1>LUMINARY</h1>
+                        <p>你的专属自律画像</p>
+                    </div>
+                    <div class="type-badge" style="background: ${badgeColor};">${badgeText}</div>
+                    <div class="type-title">${title}</div>
+                    <div class="type-desc">${desc}</div>
+                    <div class="advice">
+                        <h3>📌 给你的建议</h3>
+                        <p>${advice}</p>
+                    </div>
+                    <div class="share-hint">
+                        ✨ 长按截图，分享给朋友看看你的自律类型～
+                        <br>
+                        <button onclick="screenshot()">📸 截图保存</button>
+                    </div>
+                    <div class="footer">LUMINARY 调研团队 · 正大杯国奖冲刺</div>
+                `;
+                container.innerHTML = html;
+            }
+
+            // 截图引导
+            window.screenshot = function() {
+                alert('📱 请使用手机自带的截屏功能（音量键+电源键）保存这张卡片！');
+            };
+
+            // ---------- 4. 执行 ----------
+            if (AN1 === null && BI1 === null && SC1 === null && CM1 === null && SE1 === null) {
+                // 如果没有收到任何参数，显示错误提示
+                document.getElementById('resultCard').innerHTML = `
+                    <div class="error">
+                        ⚠️ 没有收到你的答案参数，请确认跳转链接中的参数名是否正确。<br>
+                        示例：?AN1=5&BI1=4&SC1=2&CM1=3&SE1=4
+                    </div>
+                `;
+            } else {
+                const type = getType();
+                render(type);
+            }
+        })();
+    </script>
+</body>
+</html>
